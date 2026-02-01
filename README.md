@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 医療費控除管理アプリ (Medical Tax Deduction Manager)
 
-## Getting Started
+確定申告の医療費控除明細書を、日々の入力からNumbers（macOS）での書き出しまでシームレスに行うためのWebアプリです。
 
-First, run the development server:
+## ✨ 特徴
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **リアルタイム控除計算**: 10万円の壁（控除対象）をいつ突破したか、還付金の目安を即座に表示。
+- **Numbers最適化**: macOSのNumbersで文字化けせずに開けるBOM付きCSVエクスポート機能。
+- **プライバシー配慮**: 医療費データは外部サーバーに送信せず、ブラウザのLocalStorageにのみ保存。→後にパソコンに jsonファイルとして保存する方法に変更予定。
+- **モダンなUI**: 
+  - **ナイトモード完全対応**: macOSの外観モードに自動連動。
+  - **M5 Mac最適化**: 高速なレスポンスと快適なタイピング体験。
+- **コード品質**: **Biome**を採用し、堅牢でクリーンなコードベースを維持。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 技術スタック
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js (App Router)](https://nextjs.org/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Linter/Formatter**: [Biome](https://biomejs.dev/)
+- **Language**: TypeScript
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 使い方
 
-## Learn More
+1. 領収書を見ながら「日付・氏名・病院・金額」を入力。
+2. 上部のダッシュボードで現在の「控除対象額」と「還付予定額」を確認。
+3. 確定申告の時期になったら「📊 Numbers形式で書き出す」をクリック。
+4. 書き出されたCSVをNumbersで開き、e-Tax等の様式に合わせて調整。
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 計算ロジックについて
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+本アプリでは以下の簡易計算式を採用しています：
+- **実質負担額** = 支払金額合計 - 補填金額合計
+- **控除対象額** = 実質負担額 - 100,000円 (※所得200万円以上の場合)
+- **還付見込額** = 控除対象額 × 20% (所得税10% + 住民税10% と仮定)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Developed on M5 MacBook Pro.
