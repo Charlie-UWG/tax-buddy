@@ -21,3 +21,45 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* カレンダー全体のサイズアップ */
+.large-calendar {
+  font-size: 1.2rem !important; /* 文字を大きく */
+  border-radius: 1rem !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+}
+
+/* 各日付のセルの大きさを調整 */
+.large-calendar .react-datepicker__day-name,
+.large-calendar .react-datepicker__day,
+.large-calendar .react-datepicker__time-name {
+  width: 3rem !important;  /* 横幅を広げる */
+  line-height: 3rem !important; /* 高さを出す */
+  margin: 0.2rem !important;
+}
+
+/* ヘッダー（月表示など）の調整 */
+.large-calendar .react-datepicker__header {
+  background-color: #f8fafc; /* slate-50 */
+  border-bottom: 1px solid #e2e8f0;
+  padding-top: 1rem !important;
+}
+
+/* ダークモード対応 */
+.dark .large-calendar {
+  background-color: #1e293b !important; /* slate-800 */
+  color: white !important;
+}
+.dark .large-calendar .react-datepicker__header {
+  background-color: #334155 !important; /* slate-700 */
+  border-bottom: 1px solid #475569;
+}
+.dark .large-calendar .react-datepicker__day,
+.dark .large-calendar .react-datepicker__current-month,
+.dark .large-calendar .react-datepicker__day-name {
+  color: white !important;
+}
+.dark .large-calendar .react-datepicker__day:hover {
+  background-color: #475569 !important;
+}

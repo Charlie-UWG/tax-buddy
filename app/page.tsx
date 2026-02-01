@@ -3,6 +3,11 @@
 // biome-ignore assist/source/organizeImports: < IGNORE >
 import { useState, useEffect, useMemo } from "react";
 import type { MedicalRecord, MedicalCategory } from "@/types/medical";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { ja } from "date-fns/locale/ja"; // 日本語化用
+import "react-datepicker/dist/react-datepicker.css";
+
+registerLocale("ja", ja);
 
 export default function MedicalTaxDeductionPage() {
   const [records, setRecords] = useState<MedicalRecord[]>([]);
@@ -100,16 +105,17 @@ export default function MedicalTaxDeductionPage() {
       {/* 入力フォーム */}
       <form onSubmit={handleSubmit} className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl mb-8 border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <input
-            type="date"
-            className="p-3 text-lg border-2 rounded-xl font-bold transition-all
-              dark:bg-slate-700 dark:text-white dark:border-slate-600
-              focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none
-              cursor-pointer"
-            value={formData.date}
-            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            required
-          />
+          <div className="flex flex-col">
+            <DatePicker
+              selected={new Date(formData.date)}
+              onChange={(date: Date | null) => setFormData({ ...formData, date: date?.toISOString().split("T")[0] || "" })}
+              locale="ja"
+              dateFormat="yyyy/MM/dd"
+              className="p-3 text-lg border-2 rounded-xl font-bold w-full dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20"
+              // ↓ ここが重要：カレンダー自体の見た目を制御するクラス名
+              calendarClassName="large-calendar"
+            />
+          </div>
           <input
             type="text"
             placeholder="受診者の氏名"
