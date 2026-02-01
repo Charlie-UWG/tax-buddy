@@ -107,14 +107,26 @@ export default function MedicalTaxDeductionPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="flex flex-col">
             <DatePicker
-              selected={new Date(formData.date)}
-              onChange={(date: Date | null) => setFormData({ ...formData, date: date?.toISOString().split("T")[0] || "" })}
+              selected={formData.date ? new Date(formData.date) : null}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  const yyyy = date.getFullYear();
+                  const mm = String(date.getMonth() + 1).padStart(2, '0');
+                  const dd = String(date.getDate()).padStart(2, '0');
+                  setFormData({ ...formData, date: `${yyyy}-${mm}-${dd}` });
+                }
+              }}
               locale="ja"
               dateFormat="yyyy/MM/dd"
-              className="p-3 text-lg border-2 rounded-xl font-bold w-full dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20"
-              // ↓ ここが重要：カレンダー自体の見た目を制御するクラス名
+              
+              /* 💡 エラーの原因になる popperModifiers は一旦すべて削除します */
+              /* 代わりに、標準プロパティだけで位置を調整します */
+              popperPlacement="bottom-start" 
+              
               calendarClassName="large-calendar"
+              className="p-3 text-lg border-2 rounded-xl font-bold w-full dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20 cursor-pointer"
             />
+
           </div>
           <input
             type="text"

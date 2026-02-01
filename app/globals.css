@@ -22,44 +22,71 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* カレンダー全体のサイズアップ */
+/* --- 📅 DatePicker カスタマイズ --- */
+
+/* カレンダーが浮き出る「箱」全体の設定 */
+.react-datepicker-popper {
+  z-index: 50 !important;
+  /* 💡 画面左端からの距離を強制的に右へ。120px くらい動かせば収まるはずです */
+  margin-left: 120px !important; 
+}
+
+/* カレンダー本体の見た目（大きさは維持！） */
 .large-calendar {
-  font-size: 1.2rem !important; /* 文字を大きく */
-  border-radius: 1rem !important;
-  border: none !important;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  font-size: 1.2rem !important;
+  border-radius: 1.5rem !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5) !important;
+  background-color: white !important; /* 背景色を確実に白に */
 }
 
-/* 各日付のセルの大きさを調整 */
+/* もし右に行き過ぎる、あるいは足りない場合は、
+   上の margin-left: 120px の数字をいじって微調整してください。 */
+
+/* 三角の矢印はレイアウトを崩す原因になるので非表示 */
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+/* 日付セルのサイズ（ここがデカさの決め手） */
 .large-calendar .react-datepicker__day-name,
-.large-calendar .react-datepicker__day,
-.large-calendar .react-datepicker__time-name {
-  width: 3rem !important;  /* 横幅を広げる */
-  line-height: 3rem !important; /* 高さを出す */
-  margin: 0.2rem !important;
+.large-calendar .react-datepicker__day {
+  width: 3.5rem !important;
+  line-height: 3.5rem !important;
+  margin: 0.1rem !important;
 }
 
-/* ヘッダー（月表示など）の調整 */
+/* ヘッダー部分 */
 .large-calendar .react-datepicker__header {
-  background-color: #f8fafc; /* slate-50 */
+  background-color: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   padding-top: 1rem !important;
 }
 
-/* ダークモード対応 */
+/* --- 🌙 ダークモード対応 --- */
 .dark .large-calendar {
-  background-color: #1e293b !important; /* slate-800 */
+  background-color: #1e293b !important;
   color: white !important;
+  border: 1px solid #334155 !important;
 }
+
 .dark .large-calendar .react-datepicker__header {
-  background-color: #334155 !important; /* slate-700 */
+  background-color: #334155 !important;
   border-bottom: 1px solid #475569;
 }
+
 .dark .large-calendar .react-datepicker__day,
 .dark .large-calendar .react-datepicker__current-month,
 .dark .large-calendar .react-datepicker__day-name {
   color: white !important;
 }
+
 .dark .large-calendar .react-datepicker__day:hover {
   background-color: #475569 !important;
+}
+
+/* 選択済みの日付 */
+.react-datepicker__day--selected {
+  background-color: #2563eb !important; /* blue-600 */
+  border-radius: 0.5rem !important;
 }
