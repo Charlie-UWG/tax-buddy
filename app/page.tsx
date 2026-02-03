@@ -1,15 +1,16 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: < IGNORE >
-import { useState, useEffect, useMemo } from "react";
-import type { MedicalRecord, MedicalCategory } from "@/types/medical";
+import { useState, useEffect, useMemo, useId } from "react"; // 💡 useIdを追加import type { MedicalRecord, MedicalCategory } from "@/types/medical";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ja } from "date-fns/locale/ja"; // 日本語化用
 import "react-datepicker/dist/react-datepicker.css";
+import type { MedicalRecord, MedicalCategory } from "@/types/medical";
 
 registerLocale("ja", ja);
 
 export default function MedicalTaxDeductionPage() {
+  const hospitalListId = useId(); // 💡 ユニークなIDを生成（例: ":r1:" のような文字列）
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [formData, setFormData] = useState<Omit<MedicalRecord, "id">>({
     date: new Date().toISOString().split("T")[0],
@@ -19,18 +20,25 @@ export default function MedicalTaxDeductionPage() {
     amount: 0,
     reimbursement: 0,
   });
+  // 1. 履歴を管理する箱を作る（State）
+  const [history, setHistory] = useState<{ hospitals: string[]; cities: string[] }>({
+    hospitals: [],
+    cities: [],
+  });
 
-  // 初回読み込み
   useEffect(() => {
-    const saved = localStorage.getItem("medical-records");
-    if (saved) {
-      try {
-        setRecords(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to load records", e);
-      }
+    // 1. 医療費データを読み込む（既存のキー名 "medical-records" に合わせます）
+    const savedData = localStorage.getItem("medical-records");
+    if (savedData) {
+      setRecords(JSON.parse(savedData)); // setData ではなく setRecords に修正
     }
-  }, []);
+
+    // 2. 入力候補の履歴を読み込む
+    const savedHistory = localStorage.getItem("taxbuddy_history");
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+  }, []); // 空の配列 [] なので、アプリ起動時に1回だけ実行されます
 
   // 保存
   useEffect(() => {
@@ -55,6 +63,23 @@ export default function MedicalTaxDeductionPage() {
       id: crypto.randomUUID(),
     };
     setRecords([newRecord, ...records]);
+
+    // 💡 病院名を履歴に保存する処理を追加！
+    if (formData.providerName) {
+      // 重複を除去して最新10件を保持
+      const newHospitals = Array.from(new Set([formData.providerName, ...history.hospitals])).slice(
+        0,
+        10,
+      );
+
+      const newHistory = { ...history, hospitals: newHospitals };
+      setHistory(newHistory);
+
+      // ローカルストレージにも保存して、ブラウザを閉じても忘れないようにする
+      localStorage.setItem("taxbuddy_history", JSON.stringify(newHistory));
+    }
+
+    // フォームをリセット
     setFormData({ ...formData, providerName: "", amount: 0, reimbursement: 0 });
   };
 
@@ -152,12 +177,21 @@ export default function MedicalTaxDeductionPage() {
           />
           <input
             type="text"
-            placeholder="病院・薬局名"
+            placeholder="病院名・薬局名を入力"
+            list={hospitalListId} // 💡 中身を {hospitalListId} に変更            placeholder="病院・薬局名"
             className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
             value={formData.providerName}
             onChange={(e) => setFormData({ ...formData, providerName: e.target.value })}
             required
           />
+          {/* 💡 候補を表示するためのリストを追加 */}
+          <datalist id={hospitalListId}>
+            {" "}
+            {/* 💡 ここも同じ変数にする */}{" "}
+            {history.hospitals.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
           <select
             className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
             value={formData.category}
