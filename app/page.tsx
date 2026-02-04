@@ -11,6 +11,7 @@ registerLocale("ja", ja);
 
 export default function MedicalTaxDeductionPage() {
   const hospitalListId = useId(); // 💡 ユニークなIDを生成（例: ":r1:" のような文字列）
+  const cityListId = useId(); // 💡 ふるさと納税用の自治体リストIDも生成
   const [activeTab, setActiveTab] = useState<"medical" | "furusato">("medical");
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [furusatoRecords, setFurusatoRecords] = useState<FurusatoRecord[]>([]);
@@ -114,10 +115,19 @@ export default function MedicalTaxDeductionPage() {
       id: crypto.randomUUID(),
     };
     setFurusatoRecords([newRecord, ...furusatoRecords]);
-    // 自治体名も履歴（サジェスト）に追加したければここでupdateHistory的な処理を呼ぶ（後ほど）
+    // 💡 自治体名を履歴に保存
+    if (furusatoForm.city) {
+      const newCities = Array.from(new Set([furusatoForm.city, ...history.cities])).slice(0, 10);
+
+      const newHistory = { ...history, cities: newCities };
+      setHistory(newHistory);
+      localStorage.setItem("taxbuddy_history", JSON.stringify(newHistory));
+    }
+
     setFurusatoForm({ ...furusatoForm, city: "", amount: 0, memo: "" });
   };
 
+  // CSVエクスポート機能
   const exportToCsv = () => {
     if (records.length === 0) return alert("データがありません");
     const headers = ["日付", "受診者", "病院・薬局", "区分", "支払金額", "補填金額"];
@@ -369,11 +379,18 @@ export default function MedicalTaxDeductionPage() {
               <input
                 type="text"
                 placeholder="寄付先の自治体名"
+                list={cityListId} // 💡 これを追加
                 className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
                 value={furusatoForm.city}
                 onChange={(e) => setFurusatoForm({ ...furusatoForm, city: e.target.value })}
                 required
               />
+              {/* 💡 候補を表示するためのリストを追加（inputのすぐ下などに） */}
+              <datalist id={cityListId}>
+                {history.cities.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
 
               {/* 金額 */}
               <div className="flex items-center gap-2">
