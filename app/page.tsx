@@ -6,6 +6,7 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import { ja } from "date-fns/locale/ja"; // 日本語化用
 import "react-datepicker/dist/react-datepicker.css";
 import type { MedicalRecord, MedicalCategory, FurusatoRecord } from "@/types/tax";
+import { TaxCard } from "../components/TaxCard";
 
 registerLocale("ja", ja);
 
@@ -189,37 +190,10 @@ export default function MedicalTaxDeductionPage() {
 
       {/* 集計ダッシュボード (ここは常に表示) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-          <p className="text-xs text-slate-500 font-bold mb-1">実質負担額 (医療費)</p>
-          <p className="text-2xl font-mono font-bold">¥{stats.netExpense.toLocaleString()}</p>
-        </div>
-        <div
-          className={`p-4 rounded-xl border transition-colors ${stats.medicalDeduction > 0 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 opacity-60"}`}
-        >
-          <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-1">
-            医療費控除額 (概算)
-          </p>
-          <p className="text-2xl font-mono font-bold">¥{stats.medicalDeduction.toLocaleString()}</p>
-        </div>
-        <div
-          className={`p-4 rounded-xl border transition-colors ${stats.estimatedRefund > 0 ? "border-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg shadow-green-500/10" : "border-slate-200 dark:border-slate-700 opacity-60"}`}
-        >
-          <p className="text-xs text-green-600 dark:text-green-400 font-bold mb-1">
-            還付・減税見込額
-          </p>
-          <p className="text-2xl font-mono font-bold text-green-600 dark:text-green-400">
-            ¥{stats.estimatedRefund.toLocaleString()}
-          </p>
-        </div>
-        {/* 🎁 ふるさと納税合計カードを追加 */}
-        <div className="p-4 rounded-xl border border-pink-200 dark:border-pink-900/30 bg-pink-50/30 dark:bg-pink-900/10">
-          <p className="text-xs text-pink-600 dark:text-pink-400 font-bold mb-1">
-            ふるさと納税合計
-          </p>
-          <p className="text-2xl font-mono font-bold text-pink-600 dark:text-pink-400">
-            ¥{stats.furusatoTotal.toLocaleString()}
-          </p>
-        </div>
+        <TaxCard label="実質負担額 (医療費)" amount={stats.netExpense} color="slate" />
+        <TaxCard label="医療費控除額 (概算)" amount={stats.medicalDeduction} color="blue" />
+        <TaxCard label="ふるさと納税合計" amount={stats.furusatoTotal} color="pink" />
+        <TaxCard label="還付・減税見込額" amount={stats.estimatedRefund} color="green" />
       </div>
 
       {/* --- 医療費モードの内容 --- */}
