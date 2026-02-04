@@ -178,7 +178,7 @@ export default function MedicalTaxDeductionPage() {
       </div>
 
       {/* 集計ダッシュボード (ここは常に表示) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
           <p className="text-xs text-slate-500 font-bold mb-1">実質負担額 (医療費)</p>
           <p className="text-2xl font-mono font-bold">¥{stats.netExpense.toLocaleString()}</p>
@@ -199,6 +199,15 @@ export default function MedicalTaxDeductionPage() {
           </p>
           <p className="text-2xl font-mono font-bold text-green-600 dark:text-green-400">
             ¥{stats.estimatedRefund.toLocaleString()}
+          </p>
+        </div>
+        {/* 🎁 ふるさと納税合計カードを追加 */}
+        <div className="p-4 rounded-xl border border-pink-200 dark:border-pink-900/30 bg-pink-50/30 dark:bg-pink-900/10">
+          <p className="text-xs text-pink-600 dark:text-pink-400 font-bold mb-1">
+            ふるさと納税合計
+          </p>
+          <p className="text-2xl font-mono font-bold text-pink-600 dark:text-pink-400">
+            ¥{stats.furusatoTotal.toLocaleString()}
           </p>
         </div>
       </div>
@@ -336,7 +345,6 @@ export default function MedicalTaxDeductionPage() {
       )}
 
       {/* --- ふるさと納税モードの内容 --- */}
-      {/* --- ふるさと納税モードの内容 --- */}
       {activeTab === "furusato" && (
         <div className="animate-in fade-in duration-300">
           <form
@@ -415,76 +423,77 @@ export default function MedicalTaxDeductionPage() {
             </div>
           </form>
 
-          {/* ここに後で「ふるさと納税の一覧テーブル」を追加します */}
+          {/* ふるさと納税・データ一覧 */}
+          <div className="overflow-x-auto border border-pink-100 dark:border-pink-900/30 rounded-xl shadow-sm bg-white dark:bg-slate-800">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-pink-50 text-slate-600 dark:bg-pink-900/20 dark:text-pink-200">
+                <tr>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
+                    寄付日
+                  </th>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
+                    自治体
+                  </th>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-right">
+                    金額
+                  </th>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
+                    返礼品メモ
+                  </th>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-center">
+                    特例
+                  </th>
+                  <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-center">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-pink-50 dark:divide-pink-900/10">
+                {furusatoRecords.map((r) => (
+                  <tr
+                    key={r.id}
+                    className="hover:bg-pink-50/50 dark:hover:bg-pink-900/5 transition-colors"
+                  >
+                    <td className="p-3 text-sm font-mono">{r.date}</td>
+                    <td className="p-3 text-sm font-bold">{r.city}</td>
+                    <td className="p-3 text-right font-mono text-pink-600 dark:text-pink-400">
+                      ¥{r.amount.toLocaleString()}
+                    </td>
+                    <td className="p-3 text-xs text-slate-500">{r.memo}</td>
+                    <td className="p-3 text-center text-xs">
+                      {r.isOneStop ? (
+                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
+                          適用
+                        </span>
+                      ) : (
+                        <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                          申告
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFurusatoRecords(furusatoRecords.filter((rec) => rec.id !== r.id))
+                        }
+                        className="text-red-400 hover:text-red-600 p-1"
+                      >
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {furusatoRecords.length === 0 && (
+              <div className="p-10 text-center text-slate-400 text-sm">
+                寄付の記録がありません。
+              </div>
+            )}
+          </div>
         </div>
       )}
-      {/* ふるさと納税・データ一覧 */}
-      <div className="overflow-x-auto border border-pink-100 dark:border-pink-900/30 rounded-xl shadow-sm bg-white dark:bg-slate-800">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-pink-50 text-slate-600 dark:bg-pink-900/20 dark:text-pink-200">
-            <tr>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
-                寄付日
-              </th>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
-                自治体
-              </th>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-right">
-                金額
-              </th>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700">
-                返礼品メモ
-              </th>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-center">
-                特例
-              </th>
-              <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-center">
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-pink-50 dark:divide-pink-900/10">
-            {furusatoRecords.map((r) => (
-              <tr
-                key={r.id}
-                className="hover:bg-pink-50/50 dark:hover:bg-pink-900/5 transition-colors"
-              >
-                <td className="p-3 text-sm font-mono">{r.date}</td>
-                <td className="p-3 text-sm font-bold">{r.city}</td>
-                <td className="p-3 text-right font-mono text-pink-600 dark:text-pink-400">
-                  ¥{r.amount.toLocaleString()}
-                </td>
-                <td className="p-3 text-xs text-slate-500">{r.memo}</td>
-                <td className="p-3 text-center text-xs">
-                  {r.isOneStop ? (
-                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
-                      適用
-                    </span>
-                  ) : (
-                    <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
-                      申告
-                    </span>
-                  )}
-                </td>
-                <td className="p-3 text-center">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFurusatoRecords(furusatoRecords.filter((rec) => rec.id !== r.id))
-                    }
-                    className="text-red-400 hover:text-red-600 p-1"
-                  >
-                    ✕
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {furusatoRecords.length === 0 && (
-          <div className="p-10 text-center text-slate-400 text-sm">寄付の記録がありません。</div>
-        )}
-      </div>
     </main>
   );
 }
