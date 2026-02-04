@@ -37,34 +37,48 @@ export default function MedicalTaxDeductionPage() {
   });
 
   useEffect(() => {
-    // 1. 医療費データを読み込む（既存のキー名 "medical-records" に合わせます）
-    const savedData = localStorage.getItem("medical-records");
-    if (savedData) {
-      setRecords(JSON.parse(savedData)); // setData ではなく setRecords に修正
+    // 1. 医療費データを読み込む
+    const savedMedical = localStorage.getItem("medical-records");
+    if (savedMedical) {
+      setRecords(JSON.parse(savedMedical));
     }
 
-    // 2. 入力候補の履歴を読み込む
+    // 💡 2. ふるさと納税データを読み込む（これを追加！）
+    const savedFurusato = localStorage.getItem("furusato-records");
+    if (savedFurusato) {
+      setFurusatoRecords(JSON.parse(savedFurusato));
+    }
+
+    // 3. 入力候補（サジェスト）の履歴を読み込む
     const savedHistory = localStorage.getItem("taxbuddy_history");
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
     }
-  }, []); // 空の配列 [] なので、アプリ起動時に1回だけ実行されます
+  }, []); // 最初に1回だけ実行
 
   // 保存
+  // 既存のuseEffect（保存用）を修正
   useEffect(() => {
     localStorage.setItem("medical-records", JSON.stringify(records));
-  }, [records]);
+    localStorage.setItem("furusato-records", JSON.stringify(furusatoRecords)); // 💡 これを追加！
+  }, [records, furusatoRecords]);
 
   // --- 計算ロジック (useMemoで最適化) ---
   const stats = useMemo(() => {
+    // 医療費の計算
     const total = records.reduce((sum, r) => sum + r.amount, 0);
     const totalReimbursement = records.reduce((sum, r) => sum + r.reimbursement, 0);
     const netExpense = total - totalReimbursement;
-    const deduction = Math.max(0, netExpense - 100000); // 10万円控除
-    const estimatedRefund = Math.floor(deduction * 0.2); // 所得税・住民税概算20%
+    const medicalDeduction = Math.max(0, netExpense - 100000);
 
-    return { total, netExpense, deduction, estimatedRefund };
-  }, [records]);
+    // 💡 ふるさと納税の計算を追加
+    const furusatoTotal = furusatoRecords.reduce((sum, r) => sum + r.amount, 0);
+
+    // 最終的な還付・減税見込（医療費控除分 + ふるさと納税は自己負担2000円を除く額が控除対象）
+    const estimatedRefund = Math.floor(medicalDeduction * 0.2) + Math.max(0, furusatoTotal - 2000);
+
+    return { total, netExpense, medicalDeduction, furusatoTotal, estimatedRefund };
+  }, [records, furusatoRecords]); // 💡 両方の変化を監視
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,12 +184,12 @@ export default function MedicalTaxDeductionPage() {
           <p className="text-2xl font-mono font-bold">¥{stats.netExpense.toLocaleString()}</p>
         </div>
         <div
-          className={`p-4 rounded-xl border transition-colors ${stats.deduction > 0 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 opacity-60"}`}
+          className={`p-4 rounded-xl border transition-colors ${stats.medicalDeduction > 0 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-slate-200 dark:border-slate-700 opacity-60"}`}
         >
           <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-1">
             医療費控除額 (概算)
           </p>
-          <p className="text-2xl font-mono font-bold">¥{stats.deduction.toLocaleString()}</p>
+          <p className="text-2xl font-mono font-bold">¥{stats.medicalDeduction.toLocaleString()}</p>
         </div>
         <div
           className={`p-4 rounded-xl border transition-colors ${stats.estimatedRefund > 0 ? "border-green-500 bg-green-50 dark:bg-green-900/20 shadow-lg shadow-green-500/10" : "border-slate-200 dark:border-slate-700 opacity-60"}`}
