@@ -9,7 +9,6 @@ import type { MedicalRecord, MedicalCategory, FurusatoRecord } from "@/types/tax
 import { TaxCard } from "../components/TaxCard";
 import { SuggestInput } from "../components/SuggestInput";
 import { TaxTable } from "@/components/TaxTable";
-import { Libre_Barcode_128 } from "next/font/google";
 import { TaxForm } from "@/components/TaxForm";
 import type { SyntheticEvent } from "react";
 
