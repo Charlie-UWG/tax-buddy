@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import type { MedicalRecord, MedicalCategory, FurusatoRecord } from "@/types/tax";
 import { TaxCard } from "../components/TaxCard";
 import { SuggestInput } from "../components/SuggestInput";
-import { TaxTable } from "@/components/TaxTable";
+import { TaxTable } from "../components/TaxTable";
 import { TaxForm, TaxLabel } from "../components/TaxForm";
 import type { SyntheticEvent } from "react";
 
@@ -238,7 +238,7 @@ export default function MedicalTaxDeductionPage() {
             <div className="flex flex-col gap-1">
               <TaxLabel>病院・薬局</TaxLabel>
               <SuggestInput
-                placeholder="病院・薬局名を入力"
+                placeholder="病院・薬局名"
                 value={formData.providerName}
                 onChange={(val) => setFormData({ ...formData, providerName: val })}
                 suggestions={history.hospitals}
@@ -250,7 +250,7 @@ export default function MedicalTaxDeductionPage() {
             <div className="flex flex-col gap-1">
               <TaxLabel>区分</TaxLabel>
               <select
-                className="p-2 border-2 rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20"
+                className="h-[52px] p-2 border-2 rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20"
                 value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value as MedicalCategory })
@@ -268,7 +268,7 @@ export default function MedicalTaxDeductionPage() {
               <input
                 type="number"
                 placeholder="金額"
-                className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                className="h-[52px] p-2 border rounded-md dark:bg-slate-700 text-right dark:text-white dark:border-slate-600"
                 value={formData.amount || ""}
                 onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
                 required
@@ -296,7 +296,7 @@ export default function MedicalTaxDeductionPage() {
           <TaxForm onSubmit={handleFurusatoSubmit} color="pink" buttonText="寄付を追加">
             {/* 日付 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">寄付日</span>
+              <TaxLabel>寄付日</TaxLabel>
               <DatePicker
                 selected={furusatoForm.date ? new Date(furusatoForm.date) : null}
                 onChange={(date: Date | null) => {
@@ -311,22 +311,23 @@ export default function MedicalTaxDeductionPage() {
             </div>
             {/* ふるさと納税の自治体名 */}
             <div className="flex flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">自治体名</span>
+              <TaxLabel>自治体名</TaxLabel>
               <SuggestInput
                 placeholder="寄付先の自治体名"
                 value={furusatoForm.city}
                 onChange={(val) => setFurusatoForm({ ...furusatoForm, city: val })}
                 suggestions={history.cities}
+                className="h-[52px]" // ← ここで高さを指定！
                 required
               />
             </div>
             {/* 金額 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">金額</span>
+              <TaxLabel>金額</TaxLabel>
               <input
                 type="number"
                 placeholder="金額"
-                className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                className="h-[52px] p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
                 value={furusatoForm.amount || ""}
                 onChange={(e) =>
                   setFurusatoForm({ ...furusatoForm, amount: Number(e.target.value) })
@@ -336,18 +337,18 @@ export default function MedicalTaxDeductionPage() {
             </div>
             {/* メモ */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">メモ</span>
+              <TaxLabel>返礼品のメモ</TaxLabel>
               <input
                 type="text"
                 placeholder="返礼品のメモ（例：お米10kg）"
-                className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                className="h-[52px] p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
                 value={furusatoForm.memo}
                 onChange={(e) => setFurusatoForm({ ...furusatoForm, memo: e.target.value })}
               />
             </div>
             {/* 5. ワンストップ特例（追加分） */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">特例申請</span>
+              <TaxLabel>特例申請</TaxLabel>
               <label className="flex items-center gap-2 p-3 border-2 rounded-xl dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                 <input
                   type="checkbox"
