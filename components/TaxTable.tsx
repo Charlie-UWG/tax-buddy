@@ -1,4 +1,5 @@
 // components/TaxTable.tsx
+
 interface TaxTableProps {
   headers: string[];
   rows: {

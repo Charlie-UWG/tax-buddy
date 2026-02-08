@@ -32,6 +32,7 @@ export default function MedicalTaxDeductionPage() {
     amount: 0,
     memo: "",
     isOneStop: true, // デフォルトでチェックあり
+    isReceived: false,
   });
 
   // 1. 履歴を管理する箱を作る（State）
@@ -129,6 +130,14 @@ export default function MedicalTaxDeductionPage() {
       });
     }
     setFurusatoForm({ ...furusatoForm, city: "", amount: 0, memo: "" });
+  };
+
+  // 特定のレコードのチェック状態を反転させる関数
+  const toggleFurusatoReceived = (id: string) => {
+    const update = furusatoRecords.map((record) =>
+      record.id === id ? { ...record, isReceived: !record.isReceived } : record,
+    );
+    setFurusatoRecords(update);
   };
 
   // CSVエクスポート機能
@@ -367,11 +376,18 @@ export default function MedicalTaxDeductionPage() {
           {/* ふるさと納税・データ一覧 */}
           {/* // --- ふるさと納税のテーブル部分 --- */}
           <TaxTable
-            headers={["寄付日", "自治体", "金額", "メモ", "特例"]}
+            headers={["証明書", "寄付日", "自治体", "金額", "メモ", "特例"]}
             color="pink"
             rows={furusatoRecords.map((r) => ({
               id: r.id,
               cells: [
+                <input
+                  key={`check-${r.id}`}
+                  type="checkbox"
+                  checked={r.isReceived || false}
+                  onChange={() => toggleFurusatoReceived(r.id)}
+                  className="w-5 h-5 cursor-pointer accent-pink-600"
+                />,
                 r.date,
                 r.city,
                 `¥${r.amount.toLocaleString()}`,

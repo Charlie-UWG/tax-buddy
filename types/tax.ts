@@ -28,4 +28,5 @@ export interface FurusatoRecord {
   amount: number; // 寄付金額
   memo: string; // 返礼品の内容など
   isOneStop: boolean; // ワンストップ特例を利用するか
+  isReceived: boolean; // 寄付金受領証明書を受け取ったかどうか
 }
