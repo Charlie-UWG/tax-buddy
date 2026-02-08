@@ -6,11 +6,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "biome check",
-    "format": "biome format --write",
     "electron-dev": "NODE_ENV=development electron .",
-    "dist": "next build && electron-builder"
+    "dist": "next build && electron-builder",
+    "format": "biome format --write",
+    "test-prod": "NODE_ENV=production electron ."
   },
   "build": {
     "appId": "com.taxbuddy.app",

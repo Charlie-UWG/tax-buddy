@@ -15,6 +15,7 @@ import type { SyntheticEvent } from "react";
 registerLocale("ja", ja);
 
 export default function MedicalTaxDeductionPage() {
+  const [mounted, setMounted] = useState(false); // 💡 これを追加
   const [activeTab, setActiveTab] = useState<"medical" | "furusato">("medical");
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [furusatoRecords, setFurusatoRecords] = useState<FurusatoRecord[]>([]);
@@ -59,6 +60,7 @@ export default function MedicalTaxDeductionPage() {
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
     }
+    setMounted(true); // 💡 一番最後に追加！これで準備完了
   }, []); // 最初に1回だけ実行
 
   // 保存
@@ -84,6 +86,12 @@ export default function MedicalTaxDeductionPage() {
 
     return { total, netExpense, medicalDeduction, furusatoTotal, estimatedRefund };
   }, [records, furusatoRecords]); // 💡 両方の変化を監視
+
+  // 💡 ここに追加！
+  // Electron側でJavaScriptの準備が整うまで、一旦「無」を返して不整合を防ぎます
+  if (!mounted) {
+    return <div className="min-h-screen bg-white dark:bg-slate-900" />;
+  }
 
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();

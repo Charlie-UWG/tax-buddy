@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("node:path");
+const fs = require("node:fs"); // チェック用に追加
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -8,18 +9,25 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false, // 💡 ローカルのJS実行を許可するために false にします
     },
-    // macOSっぽい見た目にする
-    titleBarStyle: "hiddenInset",
   });
 
-  // 開発中はローカルサーバーを表示、ビルド後は静的ファイルを表示
-  const url =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "out/index.html")}`;
+  const isDev = process.env.NODE_ENV === "development";
 
-  win.loadURL(url);
+  if (isDev) {
+    win.loadURL("http://localhost:3000");
+  } else {
+    // 確実にパスを解決
+    const indexPath = path.join(__dirname, "out", "index.html");
+
+    // デバッグ用：ファイルがない場合にエラーを表示
+    if (!fs.existsSync(indexPath)) {
+      console.error("HTMLが見つかりません:", indexPath);
+    }
+
+    win.loadFile(indexPath); // loadURL ではなく loadFile を使うのが確実です
+  }
 }
 
 app.whenReady().then(createWindow);
