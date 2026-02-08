@@ -9,7 +9,7 @@ import type { MedicalRecord, MedicalCategory, FurusatoRecord } from "@/types/tax
 import { TaxCard } from "../components/TaxCard";
 import { SuggestInput } from "../components/SuggestInput";
 import { TaxTable } from "@/components/TaxTable";
-import { TaxForm } from "@/components/TaxForm";
+import { TaxForm, TaxLabel } from "../components/TaxForm";
 import type { SyntheticEvent } from "react";
 
 registerLocale("ja", ja);
@@ -47,7 +47,7 @@ export default function MedicalTaxDeductionPage() {
       setRecords(JSON.parse(savedMedical));
     }
 
-    // 💡 2. ふるさと納税データを読み込む（これを追加！）
+    // 💡 2. ふるさと納税データを読み込む
     const savedFurusato = localStorage.getItem("furusato-records");
     if (savedFurusato) {
       setFurusatoRecords(JSON.parse(savedFurusato));
@@ -191,7 +191,8 @@ export default function MedicalTaxDeductionPage() {
       </div>
 
       {/* 集計ダッシュボード (ここは常に表示) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      {/* 数値の表示は右寄せ */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-right">
         <TaxCard label="実質負担額 (医療費)" amount={stats.netExpense} color="slate" />
         <TaxCard label="医療費控除額 (概算)" amount={stats.medicalDeduction} color="blue" />
         <TaxCard label="ふるさと納税合計" amount={stats.furusatoTotal} color="pink" />
@@ -204,7 +205,7 @@ export default function MedicalTaxDeductionPage() {
           <TaxForm onSubmit={handleSubmit} color="blue" buttonText="医療費を追加">
             {/* 日付 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">受診日</span>
+              <TaxLabel>受診日</TaxLabel>
               <DatePicker
                 selected={formData.date ? new Date(formData.date) : null}
                 onChange={(date: Date | null) => {
@@ -218,16 +219,16 @@ export default function MedicalTaxDeductionPage() {
                 }}
                 locale="ja"
                 dateFormat="yyyy/MM/dd"
-                className="p-3 text-lg border-2 rounded-xl font-bold w-full dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20 cursor-pointer"
+                className="p-3 text-lg border-2 rounded-xl font-bold w-full h-[52px] dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20 cursor-pointer"
               />
             </div>
             {/* 氏名入力 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">氏名</span>
+              <TaxLabel>氏名</TaxLabel>
               <input
                 type="text"
                 placeholder="氏名"
-                className="p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                className="h-[52px] p-2 border rounded-md dark:bg-slate-700 dark:text-white dark:border-slate-600"
                 value={formData.patientName}
                 onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
                 required
@@ -235,18 +236,19 @@ export default function MedicalTaxDeductionPage() {
             </div>
             {/* 医療機関名 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">病院・薬局</span>
+              <TaxLabel>病院・薬局</TaxLabel>
               <SuggestInput
-                placeholder="病院・薬局名"
+                placeholder="病院・薬局名を入力"
                 value={formData.providerName}
                 onChange={(val) => setFormData({ ...formData, providerName: val })}
                 suggestions={history.hospitals}
+                className="h-[52px]" // ← ここで高さを指定！
                 required
               />
             </div>
             {/* 医療カテゴリー */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">区分</span>
+              <TaxLabel>区分</TaxLabel>
               <select
                 className="p-2 border-2 rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 outline-none focus:ring-4 focus:ring-blue-500/20"
                 value={formData.category}
@@ -262,7 +264,7 @@ export default function MedicalTaxDeductionPage() {
             </div>
             {/* 金額 */}
             <div className="flex flex-col gap-1">
-              <span className="text-xs font-bold text-slate-500 ml-1">金額</span>
+              <TaxLabel>金額</TaxLabel>
               <input
                 type="number"
                 placeholder="金額"

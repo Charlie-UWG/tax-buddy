@@ -16,7 +16,8 @@ export const TaxCard = ({ label, amount, color = "slate" }: TaxCardProps) => {
 
   return (
     <div className={`p-4 rounded-xl border transition-all ${colorClasses[color]}`}>
-      <p className="text-xs font-bold mb-1 opacity-80">{label}</p>
+      {/* ラベルは中央揃え */}
+      <p className="text-xs font-bold mb-1 opacity-80 text-center">{label}</p>
       <p className="text-2xl font-mono font-bold">¥{amount.toLocaleString()}</p>
     </div>
   );

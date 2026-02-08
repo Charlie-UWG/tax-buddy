@@ -36,3 +36,7 @@ export const TaxForm = ({
     </form>
   );
 };
+
+export const TaxLabel = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-sm font-bold text-slate-700 dark:text-slate-200 ml-1">{children}</span>
+);
