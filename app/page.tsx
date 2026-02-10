@@ -14,7 +14,7 @@ import type { SyntheticEvent } from "react";
 
 registerLocale("ja", ja);
 
-export default function MedicalTaxDeductionPage() {
+export default function TaxBuddyPage() {
   const [mounted, setMounted] = useState(false); // 💡 これを追加
   const [activeTab, setActiveTab] = useState<"medical" | "furusato">("medical");
   const [records, setRecords] = useState<MedicalRecord[]>([]);
@@ -35,6 +35,7 @@ export default function MedicalTaxDeductionPage() {
     isOneStop: true, // デフォルトでチェックあり
     isReceived: false,
   });
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // ソート状態を管理するState
 
   // 1. 履歴を管理する箱を作る（State）
   const [history, setHistory] = useState<{ hospitals: string[]; cities: string[] }>({
@@ -87,7 +88,6 @@ export default function MedicalTaxDeductionPage() {
     return { total, netExpense, medicalDeduction, furusatoTotal, estimatedRefund };
   }, [records, furusatoRecords]); // 💡 両方の変化を監視
 
-  // 💡 ここに追加！
   // Electron側でJavaScriptの準備が整うまで、一旦「無」を返して不整合を防ぎます
   if (!mounted) {
     return <div className="min-h-screen bg-white dark:bg-slate-900" />;
@@ -164,6 +164,31 @@ export default function MedicalTaxDeductionPage() {
     link.download = `医療費控除明細_${new Date().getFullYear()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  // ソート機能を追加
+  const handleSort = (header: string) => {
+    const nextOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(nextOrder);
+
+    if (records.length === 0) {
+      return;
+    }
+    if (activeTab === "medical") {
+      // 医療費タブの場合のソート処理
+      const sorted = [...records].sort((a, b) => {
+        if (!a.date || !b.date) return 0;
+        return nextOrder === "asc" ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+      });
+      setRecords(sorted);
+    } else {
+      // ふるさと納税タブの場合のソート処理
+      const sortedFurusato = [...furusatoRecords].sort((a, b) => {
+        if (!a.date || !b.date) return 0;
+        return nextOrder === "asc" ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+      });
+      setFurusatoRecords(sortedFurusato);
+    }
   };
 
   return (
@@ -304,6 +329,8 @@ export default function MedicalTaxDeductionPage() {
             }))}
             onDelete={(id) => setRecords(records.filter((rec) => rec.id !== id))}
             emptyMessage="医療費のデータがありません"
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         </div>
       )}
@@ -405,6 +432,8 @@ export default function MedicalTaxDeductionPage() {
             }))}
             onDelete={(id) => setFurusatoRecords(furusatoRecords.filter((rec) => rec.id !== id))}
             emptyMessage="寄付の記録がありません"
+            onSort={handleSort}
+            sortOrder={sortOrder}
           />
         </div>
       )}

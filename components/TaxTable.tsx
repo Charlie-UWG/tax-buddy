@@ -9,12 +9,16 @@ interface TaxTableProps {
   onDelete: (id: string) => void;
   emptyMessage?: string;
   color?: "blue" | "pink";
+  onSort?: (header: string) => void; // ソート用の関数を受け取れるようにする
+  sortOrder?: "asc" | "desc"; // ソートの状態を表示用にもらう
 }
 
 export const TaxTable = ({
   headers,
   rows,
   onDelete,
+  onSort,
+  sortOrder = "asc",
   emptyMessage = "データがありません",
   color = "blue",
 }: TaxTableProps) => {
@@ -44,9 +48,18 @@ export const TaxTable = ({
               {headers.map((h, i) => (
                 <th
                   key={h}
-                  className={`p-3 text-xs font-bold uppercase border-b dark:border-slate-700 ${i === headers.length - 1 ? "text-center" : ""}`}
+                  onClick={() => (h === "日付" || h === "寄付日") && onSort?.(h)}
+                  className={`p-3 text-xs font-bold uppercase border-b dark:border-slate-700 
+                    ${h === "日付" || h === "寄付日" ? "cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" : ""}
+                    ${i === headers.length - 1 ? "text-center" : ""}`}
                 >
-                  {h}
+                  <div className="flex items-center gap-1">
+                    {h}
+                    {/* ソート状態のアイコンを表示 */}
+                    {(h === "日付" || h === "寄付日") && (
+                      <span className="text-[10px]">{sortOrder === "asc" ? "▲" : "▼"}</span>
+                    )}
+                  </div>
                 </th>
               ))}
               <th className="p-3 text-xs font-bold uppercase border-b dark:border-slate-700 text-center">
