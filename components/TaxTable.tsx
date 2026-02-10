@@ -21,13 +21,13 @@ export const TaxTable = ({
   const theme = {
     blue: {
       border: "border-slate-200 dark:border-slate-700",
-      thead: "sticky top-0 bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-200",
+      thead: "sticky top-0 z-10 bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-200",
       rowHover: "hover:bg-slate-50/80 dark:hover:bg-slate-700/50",
       accentText: "text-blue-600 dark:text-blue-400",
     },
     pink: {
       border: "border-pink-100 dark:border-pink-900/30",
-      thead: "sticky top-0 bg-pink-50 dark:bg-pink-900/20 text-slate-600 dark:text-pink-200",
+      thead: "sticky top-0 z-10 bg-pink-50 dark:bg-pink-950 text-slate-600 dark:text-pink-200",
       rowHover: "hover:bg-pink-50/50 dark:hover:bg-pink-900/5",
       accentText: "text-pink-600 dark:text-pink-400",
     },
