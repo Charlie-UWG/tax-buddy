@@ -22,7 +22,7 @@ export const TaxForm = ({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-8 animate-in fade-in slide-in-from-top-4 duration-500"
+      className="flex-none bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-8 animate-in fade-in slide-in-from-top-4 duration-500"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
         {children}

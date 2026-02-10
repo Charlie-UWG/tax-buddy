@@ -167,9 +167,9 @@ export default function MedicalTaxDeductionPage() {
   };
 
   return (
-    <main className="p-8 max-w-5xl mx-auto font-sans min-h-screen transition-colors duration-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+    <main className="h-screen flex flex-col overflow-hidden p-8 max-w-5xl mx-auto font-sans min-h-screen transition-colors duration-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       {/* ヘッダー部分 */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 flex-none">
         <h1 className="text-3xl font-bold text-center text-blue-600 dark:text-blue-400">
           TaxBuddy 🩺🎁
         </h1>
@@ -183,7 +183,7 @@ export default function MedicalTaxDeductionPage() {
       </div>
 
       {/* タブセレクター */}
-      <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-6 w-full max-w-md mx-auto shadow-inner">
+      <div className="flex flex-none p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-6 w-full max-w-md mx-auto shadow-inner">
         <button
           type="button"
           onClick={() => setActiveTab("medical")}
@@ -210,7 +210,7 @@ export default function MedicalTaxDeductionPage() {
 
       {/* 集計ダッシュボード (ここは常に表示) */}
       {/* 数値の表示は右寄せ */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-right">
+      <div className="flex-none grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-right">
         <TaxCard label="実質負担額 (医療費)" amount={stats.netExpense} color="slate" />
         <TaxCard label="医療費控除額 (概算)" amount={stats.medicalDeduction} color="blue" />
         <TaxCard label="ふるさと納税合計" amount={stats.furusatoTotal} color="pink" />
@@ -219,7 +219,7 @@ export default function MedicalTaxDeductionPage() {
 
       {/* --- 医療費モードの内容 --- */}
       {activeTab === "medical" && (
-        <div className="animate-in fade-in duration-300">
+        <div className="animate-in fade-in duration-300 flex-1 flex flex-col overflow-hidden min-h-0">
           <TaxForm onSubmit={handleSubmit} color="blue" buttonText="医療費を追加">
             {/* 日付 */}
             <div className="flex flex-col gap-1">
@@ -310,7 +310,7 @@ export default function MedicalTaxDeductionPage() {
 
       {/* --- ふるさと納税モードの内容 --- */}
       {activeTab === "furusato" && (
-        <div className="animate-in fade-in duration-300">
+        <div className="animate-in fade-in duration-300 flex-1 flex flex-col overflow-hidden">
           <TaxForm onSubmit={handleFurusatoSubmit} color="pink" buttonText="寄付を追加">
             {/* 日付 */}
             <div className="flex flex-col gap-1">
