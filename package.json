@@ -1,13 +1,13 @@
 {
   "name": "medical-deduction-app",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "private": true,
   "main": "main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "electron-dev": "NODE_ENV=development electron .",
-    "dist": "next build && electron-builder --mac universal",
+    "dist": "next build && electron-builder --mac",
     "format": "biome format --write",
     "test-prod": "NODE_ENV=production electron ."
   },
