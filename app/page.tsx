@@ -216,6 +216,42 @@ export default function TaxBuddyPage() {
     URL.revokeObjectURL(url);
   };
 
+  const importFromCsv = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split("\n").slice(1); // ヘッダー（1行目）を飛ばす
+
+      const importedRecords: MedicalRecord[] = lines
+        .filter((line) => line.trim() !== "") // 空行を除外
+        .map((line) => {
+          // CSVの列：日付, 受診者, 病院名, 区分, 金額, 補填額
+          const [date, patientName, providerName, category, amount, reimbursement] =
+            line.split(",");
+          return {
+            id: crypto.randomUUID(), // 新しいIDを付与
+            date: date?.trim(),
+            patientName: patientName?.trim(),
+            providerName: providerName?.trim(),
+            category: category?.trim() as MedicalCategory,
+            amount: Number(amount) || 0,
+            reimbursement: Number(reimbursement) || 0,
+          };
+        });
+
+      if (importedRecords.length > 0) {
+        if (confirm(`${importedRecords.length}件のデータを追加しますか？`)) {
+          setRecords((prev) => [...importedRecords, ...prev]);
+          alert("インポートが完了しました！");
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleSort = (header: string) => {
     const nextOrder = sortOrder === "asc" ? "desc" : "asc";
     setSortOrder(nextOrder);
@@ -242,13 +278,21 @@ export default function TaxBuddyPage() {
         <h1 className="text-3xl font-bold text-center text-blue-600 dark:text-blue-400">
           TaxBuddy 🩺🎁
         </h1>
-        <button
-          type="button"
-          onClick={exportToCsv}
-          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center gap-2 text-sm font-bold"
-        >
-          📊 Numbers形式で書き出す
-        </button>
+        <div className="flex gap-2">
+          {/* インポートボタン（見た目は普通のボタンですが、中身はファイル選択） */}
+          <label className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition flex items-center gap-2 text-sm font-bold cursor-pointer">
+            📥 CSVを取り込む
+            <input type="file" accept=".csv" className="hidden" onChange={importFromCsv} />
+          </label>
+
+          <button
+            type="button"
+            onClick={exportToCsv}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center gap-2 text-sm font-bold"
+          >
+            📊 Numbers形式で書き出す
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-none p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-6 w-full max-w-md mx-auto shadow-inner">
