@@ -4,7 +4,7 @@ interface TaxFormProps {
   children: ReactNode;
   // SubmitEventの代わりに、汎用的なSyntheticEvent（合成イベント）を使用
   onSubmit: (e: SyntheticEvent<HTMLFormElement>) => void;
-  color?: "blue" | "pink";
+  color?: "blue" | "pink" | "orange";
   buttonText?: string;
 }
 
@@ -17,6 +17,7 @@ export const TaxForm = ({
   const theme = {
     blue: "bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-none",
     pink: "bg-pink-600 hover:bg-pink-700 shadow-pink-200 dark:shadow-none",
+    orange: "bg-orange-600 hover:bg-orange-700 shadow-orange-200 dark:shadow-none",
   }[color];
 
   return (
