@@ -72,7 +72,7 @@ export default function TaxBuddyPage() {
     cities: [],
   });
 
-  // 1. 集計ロジック（病院別合計 + 使用区分の抽出）
+  // 1. 集計ロジック（補填金額の集計も追加）
   const etaxSummary = useMemo(() => {
     const summaryMap: Record<
       string,
@@ -80,6 +80,7 @@ export default function TaxBuddyPage() {
         patientName: string;
         providerName: string;
         totalAmount: number;
+        totalReimbursement: number; // 追加
         usedCategories: Set<string>;
       }
     > = {};
@@ -90,10 +91,12 @@ export default function TaxBuddyPage() {
           patientName: r.patientName,
           providerName: r.providerName,
           totalAmount: 0,
+          totalReimbursement: 0, // 初期化
           usedCategories: new Set(),
         };
       }
       summaryMap[key].totalAmount += r.amount;
+      summaryMap[key].totalReimbursement += r.reimbursement || 0; // 加算
       summaryMap[key].usedCategories.add(r.category);
     });
     return Object.values(summaryMap);
@@ -169,7 +172,12 @@ export default function TaxBuddyPage() {
       );
       setHistory({ ...history, hospitals: newHospitals });
     }
-    setFormData({ ...formData, providerName: "", amount: 0, reimbursement: 0 });
+    setFormData({
+      ...formData,
+      providerName: "",
+      amount: 0,
+      reimbursement: 0,
+    });
   };
 
   // 6. フォーム送信処理 (ふるさと納税)
@@ -335,6 +343,20 @@ export default function TaxBuddyPage() {
                 required
               />
             </div>
+            {/* 金額入力の次に追加 */}
+            <div className="flex flex-col gap-1">
+              <TaxLabel>補填金額</TaxLabel>
+              <input
+                type="number"
+                placeholder="保険金など"
+                className="h-[52px] p-2 border rounded-md dark:bg-slate-700 text-right text-pink-500 font-bold"
+                value={formData.reimbursement || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, reimbursement: Number(e.target.value) })
+                }
+              />
+              <p className="text-[10px] text-slate-400">※保険金や高額療養費で戻る額</p>
+            </div>
           </TaxForm>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 pb-20">
@@ -367,24 +389,37 @@ export default function TaxBuddyPage() {
                     {etaxSummary.map((s) => (
                       <div
                         key={`${s.patientName}-${s.providerName}`}
-                        className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm"
+                        className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-3 shadow-sm min-h-[100px]"
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 font-bold">
+                        {/* 上段：名前と金額のエリア */}
+                        <div className="flex justify-between items-start gap-2">
+                          {/* 左側：受診者と病院名（幅を確保して折り返しを防ぐ） */}
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-[11px] text-slate-400 font-black leading-tight mb-1">
                               {s.patientName}
                             </span>
-                            <span className="text-sm font-bold truncate max-w-[120px]">
+                            <span className="text-base font-black truncate leading-tight dark:text-slate-100">
                               {s.providerName}
                             </span>
                           </div>
-                          <span className="text-blue-600 dark:text-blue-400 font-mono font-bold text-sm">
-                            ¥{s.totalAmount.toLocaleString()}
-                          </span>
+
+                          {/* 右側：金額（右寄せを固定） */}
+                          <div className="flex flex-col items-end shrink-0 ml-2">
+                            <span className="text-blue-600 dark:text-blue-400 font-mono font-black text-lg leading-none">
+                              ¥{s.totalAmount.toLocaleString()}
+                            </span>
+                            {s.totalReimbursement > 0 && (
+                              <span className="text-pink-600 dark:text-pink-400 font-mono font-black text-base mt-1 leading-none">
+                                ▲ ¥{s.totalReimbursement.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        {/* ここでチェックボックスを表示 */}
-                        <ETagCategoryChecks usedCategories={s.usedCategories} />
+                        {/* 下段：区分チェック（線を引いて独立させる） */}
+                        <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
+                          <ETagCategoryChecks usedCategories={s.usedCategories} />
+                        </div>
                       </div>
                     ))}
                   </div>
