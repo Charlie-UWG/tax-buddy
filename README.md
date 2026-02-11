@@ -52,6 +52,7 @@ Language: TypeScript
 
 ## 📈 制作工程・進捗状況
 1. 基盤・医療費フェーズ（Done ✅）
+
 [x] プロジェクト初期化・基本UI作成
 
 [x] ダークモード完全対応
@@ -59,6 +60,7 @@ Language: TypeScript
 [x] 病院名の入力サジェスト機能
 
 2. 税制・環境移行フェーズ（Done ✅）
+
 [x] 医療費 ⇔ ふるさと納税 のタブ切り替えUI
 
 [x] LocalStorage から Electron ファイル保存(data.json)への移行
@@ -66,6 +68,7 @@ Language: TypeScript
 [x] 計算ロジックの統合（医療費＋寄付金の合算）
 
 3. 機能強化・データ保護フェーズ（v1.3.0 Done ✅）
+
 [x] CSVインポート機能によるデータ統合
 
 [x] レコード編集・更新機能
@@ -75,11 +78,11 @@ Language: TypeScript
 [x] e-Tax転記専用の拡大表示モーダル
 
 4. 構造最適化フェーズ（Upcoming 📅）
+
 [ ] コンポーネントおよびカスタムフックへのリファクタリング
 
 [ ] 控除限度額シミュレーター
 
 [ ] 年度切り替え・アーカイブ機能
----
+
 Developed on macOS.
----
