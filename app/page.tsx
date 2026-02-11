@@ -50,6 +50,7 @@ export default function TaxBuddyPage() {
   const [activeTab, setActiveTab] = useState<"medical" | "furusato">("medical");
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [furusatoRecords, setFurusatoRecords] = useState<FurusatoRecord[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Omit<MedicalRecord, "id">>({
     date: new Date().toISOString().split("T")[0],
     patientName: "",
@@ -71,6 +72,7 @@ export default function TaxBuddyPage() {
     hospitals: [],
     cities: [],
   });
+  const [showEtaxModal, setShowEtaxModal] = useState(false);
 
   // 1. 集計ロジック（補填金額の集計も追加）
   const etaxSummary = useMemo(() => {
@@ -158,12 +160,34 @@ export default function TaxBuddyPage() {
     return { total, netExpense, medicalDeduction, furusatoTotal, estimatedRefund };
   }, [records, furusatoRecords]);
 
-  // 5. フォーム送信処理 (医療費)
+  // レコード編集開始処理（医療費）
+  const startEdit = (record: MedicalRecord) => {
+    setEditingId(record.id);
+    setFormData({
+      date: record.date,
+      patientName: record.patientName,
+      providerName: record.providerName,
+      category: record.category,
+      amount: record.amount,
+      reimbursement: record.reimbursement,
+    });
+    // フォームまでスクロールさせる
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // 5. フォーム追加・更新処理 (医療費)
   const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newRecord: MedicalRecord = { ...formData, id: crypto.randomUUID() };
-    const newRecords = [newRecord, ...records];
-    setRecords(newRecords);
+
+    if (editingId) {
+      // 更新ロジック
+      setRecords(records.map((r) => (r.id === editingId ? { ...formData, id: editingId } : r)));
+      setEditingId(null);
+    } else {
+      // 新規追加ロジック
+      const newRecord: MedicalRecord = { ...formData, id: crypto.randomUUID() };
+      setRecords([newRecord, ...records]);
+    }
 
     if (formData.providerName) {
       const newHospitals = Array.from(new Set([formData.providerName, ...history.hospitals])).slice(
@@ -321,7 +345,11 @@ export default function TaxBuddyPage() {
 
       {activeTab === "medical" && (
         <div className="animate-in fade-in duration-300 flex-1 flex flex-col overflow-y-auto pr-2 custom-scrollbar">
-          <TaxForm onSubmit={handleSubmit} color="blue" buttonText="医療費を追加">
+          <TaxForm
+            onSubmit={handleSubmit}
+            color={editingId ? "orange" : "blue"} // 編集時は色を変えると分かりやすい
+            buttonText={editingId ? "修正を保存する" : "医療費を追加"}
+          >
             <div className="flex flex-col gap-1">
               <TaxLabel>受診日</TaxLabel>
               <DatePicker
@@ -401,6 +429,19 @@ export default function TaxBuddyPage() {
               />
               <p className="text-[10px] text-slate-400">※保険金や高額療養費で戻る額</p>
             </div>
+            {/* 編集中のときだけ「キャンセル」ボタンを出す（お好みで） */}
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setFormData({ ...formData, providerName: "", amount: 0, reimbursement: 0 });
+                }}
+                className="mt-2 text-xs text-slate-500 underline"
+              >
+                編集をキャンセル
+              </button>
+            )}
           </TaxForm>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 pb-20">
@@ -411,7 +452,22 @@ export default function TaxBuddyPage() {
                 color="blue"
                 rows={records.map((r) => ({
                   id: r.id,
-                  cells: [r.date, r.patientName, r.providerName, `¥${r.amount.toLocaleString()}`],
+                  cells: [
+                    r.date,
+                    r.patientName,
+                    r.providerName,
+                    `¥${r.amount.toLocaleString()}`,
+                    <div key={`actions-${r.id}`} className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(r)} // 手順1-②で作る関数
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
+                        title="編集"
+                      >
+                        ✏️
+                      </button>
+                    </div>,
+                  ],
                 }))}
                 onDelete={(id) => setRecords(records.filter((rec) => rec.id !== id))}
                 emptyMessage="医療費のデータがありません"
@@ -428,6 +484,16 @@ export default function TaxBuddyPage() {
                   </span>
                   病院別の合計
                 </h3>
+
+                {/* ↓ここが追加する拡大ボタンです */}
+                <button
+                  type="button"
+                  onClick={() => setShowEtaxModal(true)}
+                  className="flex items-center gap-1 text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-2 py-1.5 rounded-lg shadow-sm hover:shadow-md hover:translate-y-[-1px] transition-all font-black text-blue-600 dark:text-blue-400 hover: cursor-pointer mb-4"
+                >
+                  🔍 全画面で大きく表示
+                </button>
+
                 {etaxSummary.length > 0 ? (
                   <div className="flex flex-col gap-2">
                     {etaxSummary.map((s) => (
@@ -567,6 +633,58 @@ export default function TaxBuddyPage() {
             onSort={handleSort}
             sortOrder={sortOrder}
           />
+        </div>
+      )}
+      {/* モーダルウィンドウ */}
+      {showEtaxModal && (
+        <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div className="p-6 border-b dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
+              <h2 className="text-xl font-black text-blue-600 flex items-center gap-2">
+                <span className="bg-blue-500 text-white text-xs py-1 px-2 rounded">e-Tax用</span>
+                病院・受診者別の合計一覧
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowEtaxModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 gap-4 custom-scrollbar">
+              {etaxSummary.map((s) => (
+                <div
+                  key={`${s.patientName}-${s.providerName}`}
+                  className="border-2 border-slate-100 dark:border-slate-700 rounded-2xl p-6 flex flex-col gap-4"
+                >
+                  {/* ここに既存のカードよりさらに大きく見やすいレイアウトを書く */}
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-xs font-black text-slate-400 mb-1">{s.patientName}</p>
+                      <p className="text-2xl font-black">{s.providerName}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-mono font-black text-blue-600">
+                        ¥{s.totalAmount.toLocaleString()}
+                      </p>
+                      {s.totalReimbursement > 0 && (
+                        <p className="text-xl font-mono font-black text-pink-500">
+                          ▲ ¥{s.totalReimbursement.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-dashed">
+                    <ETagCategoryChecks usedCategories={s.usedCategories} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 text-center text-xs text-slate-400 font-bold">
+              この画面を見ながらe-Taxに転記してください
+            </div>
+          </div>
         </div>
       )}
     </main>
