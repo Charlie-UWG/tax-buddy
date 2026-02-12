@@ -6,6 +6,9 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import type { FurusatoRecord, MedicalCategory, MedicalRecord } from "@/types/tax";
 import "react-datepicker/dist/react-datepicker.css";
 import type { SyntheticEvent } from "react";
+import { EtaxModal } from "@/components/medical/EtaxModal";
+import { TrashModal } from "@/components/medical/TrashModal";
+import { UndoToast } from "@/components/medical/UndoToast";
 import { SuggestInput } from "../components/SuggestInput";
 import { TaxCard } from "../components/TaxCard";
 import { TaxForm, TaxLabel } from "../components/TaxForm";
@@ -64,7 +67,7 @@ export default function TaxBuddyPage() {
     city: "",
     amount: 0,
     memo: "",
-    isOneStop: true,
+    isOneStop: false,
     isReceived: false,
   });
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -687,132 +690,28 @@ export default function TaxBuddyPage() {
         </div>
       )}
       {/* モーダルウィンドウ */}
-      {showEtaxModal && (
-        <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div className="p-6 border-b dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
-              <h2 className="text-xl font-black text-blue-600 flex items-center gap-2">
-                <span className="bg-blue-500 text-white text-xs py-1 px-2 rounded">e-Tax用</span>
-                病院・受診者別の合計一覧
-              </h2>
-              <button
-                type="button"
-                onClick={() => setShowEtaxModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 gap-4 custom-scrollbar">
-              {etaxSummary.map((s) => (
-                <div
-                  key={`${s.patientName}-${s.providerName}`}
-                  className="border-2 border-slate-100 dark:border-slate-700 rounded-2xl p-6 flex flex-col gap-4"
-                >
-                  {/* ここに既存のカードよりさらに大きく見やすいレイアウトを書く */}
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-xs font-black text-slate-400 mb-1">{s.patientName}</p>
-                      <p className="text-2xl font-black">{s.providerName}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-3xl font-mono font-black text-blue-600">
-                        ¥{s.totalAmount.toLocaleString()}
-                      </p>
-                      {s.totalReimbursement > 0 && (
-                        <p className="text-xl font-mono font-black text-pink-500">
-                          ▲ ¥{s.totalReimbursement.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t border-dashed">
-                    <ETagCategoryChecks usedCategories={s.usedCategories} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 text-center text-xs text-slate-400 font-bold">
-              この画面を見ながらe-Taxに転記してください
-            </div>
-          </div>
-        </div>
-      )}
-      {showTrashModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl border dark:border-slate-700">
-            <div className="p-6 border-b dark:border-slate-700 flex justify-between items-center">
-              <h2 className="text-xl font-black flex items-center gap-2">🗑️ ゴミ箱</h2>
-              <button
-                type="button"
-                onClick={() => setShowTrashModal(false)}
-                className="text-slate-400 text-2xl"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              {deletedRecords.length === 0 ? (
-                <p className="text-center text-slate-400 py-10 font-bold">ゴミ箱は空です</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {deletedRecords.map((r) => (
-                    <div
-                      key={r.id}
-                      className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border dark:border-slate-600"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-400">{r.date}</span>
-                        <span className="text-sm font-bold">
-                          {r.providerName} - ¥{r.amount.toLocaleString()}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => restoreRecord(r)}
-                        className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-black hover:bg-blue-700 transition"
-                      >
-                        復元する
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm("ゴミ箱を完全に空にしますか？")) setDeletedRecords([]);
-                }}
-                className="text-xs text-red-500 font-bold px-4 py-2"
-              >
-                ゴミ箱を空にする
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EtaxModal
+        isOpen={showEtaxModal}
+        onClose={() => setShowEtaxModal(false)}
+        summary={etaxSummary}
+      />
+      {/* 後略 */}
+
+      <TrashModal
+        isOpen={showTrashModal}
+        onClose={() => setShowTrashModal(false)}
+        deletedRecords={deletedRecords}
+        onRestore={restoreRecord}
+        onClearAll={() => setDeletedRecords([])}
+      />
 
       {/* パターンB: クイック元に戻す通知（トースト） */}
-      {showUndo && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 z-[100] animate-in slide-in-from-bottom-4">
-          <span className="text-sm font-bold">データを削除しました</span>
-          <button
-            type="button"
-            onClick={() => {
-              // ! を使わずに、存在チェックを行う
-              if (lastDeleted) {
-                restoreRecord(lastDeleted);
-                setShowUndo(false);
-              }
-            }}
-            className="text-yellow-400 font-black text-sm pl-4 border-l border-slate-600"
-          >
-            元に戻す
-          </button>
-        </div>
-      )}
+      <UndoToast
+        show={showUndo}
+        lastDeleted={lastDeleted}
+        onRestore={restoreRecord}
+        onClose={() => setShowUndo(false)}
+      />
     </main>
   );
-} // ここが TaxBuddyPage の閉じカッコ！
+}
