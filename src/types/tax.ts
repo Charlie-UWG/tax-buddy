@@ -13,6 +13,7 @@ export interface MedicalRecord {
 export interface History {
   patientNames: string[];
   providerNames: string[];
+  cities: string[];
 }
 
 // 医療費の区分（e-Taxの集計などで使用）

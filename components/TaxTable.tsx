@@ -11,12 +11,14 @@ interface TaxTableProps {
   color?: "blue" | "pink";
   onSort?: (header: string) => void; // ソート用の関数を受け取れるようにする
   sortOrder?: "asc" | "desc"; // ソートの状態を表示用にもらう
+  onEdit?: (id: string) => void; // 編集用の関数を受け取れるようにする
 }
 
 export const TaxTable = ({
   headers,
   rows,
   onDelete,
+  onEdit,
   onSort,
   sortOrder = "asc",
   emptyMessage = "データがありません",
@@ -79,6 +81,17 @@ export const TaxTable = ({
                   </td>
                 ))}
                 <td className="p-3 text-center">
+                  {/* 編集ボタンを追加 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log("クリックされたID：", row.id);
+                      onEdit?.(row.id);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 font-bold text-xs p-1"
+                  >
+                    ✏️ 編集
+                  </button>
                   <button
                     type="button"
                     onClick={() => onDelete(row.id)}
