@@ -9,11 +9,10 @@ import type { FurusatoRecord, History } from "@/types/tax";
 registerLocale("ja", ja);
 
 interface FurusatoFormProps {
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
   formData: Omit<FurusatoRecord, "id">;
   setFormData: (data: any) => void;
   history: History;
-  editingId: string | null;
   onCancelEdit: () => void;
 }
 
@@ -22,6 +21,7 @@ export const FurusatoForm: FC<FurusatoFormProps> = ({
   formData,
   setFormData,
   history,
+  onCancelEdit,
 }) => {
   // すべての入力項目とリスト用に一意のIDを生成
   const dateId = useId();
@@ -67,7 +67,7 @@ export const FurusatoForm: FC<FurusatoFormProps> = ({
             type="text"
             required
             list={cityListId}
-            placeholder="受診した人の名前"
+            placeholder="例：大阪府大阪市"
             value={formData.city}
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-bold text-slate-700 dark:text-slate-200"
@@ -116,7 +116,7 @@ export const FurusatoForm: FC<FurusatoFormProps> = ({
             type="text"
             required
             // list={providerListId}
-            placeholder="お米２０Kgなど"
+            placeholder="お米20Kgなど"
             value={formData.memo}
             onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
             className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-bold text-slate-700 dark:text-slate-200"
@@ -139,6 +139,24 @@ export const FurusatoForm: FC<FurusatoFormProps> = ({
         >
           特例申請
         </label>
+      </div>
+
+      {/* 追加ボタン */}
+      <div className="mt-8 flex gap-4">
+        <button
+          type="submit"
+          className="flex-1 p-5 rounded-2xl font-black text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all active:scale-95"
+        >
+          ➕ 記録を追加する
+        </button>
+        {/* キャンセルボタン */}
+        <button
+          type="button"
+          onClick={onCancelEdit}
+          className="flex-1 p-5 rounded-2xl font-black text-lg bg-gray-500 hover:bg-gray-600 text-white shadow-lg transition-all active:scale-95"
+        >
+          ❌ キャンセル
+        </button>
       </div>
     </form>
   );
