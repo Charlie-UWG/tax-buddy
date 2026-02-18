@@ -40,7 +40,7 @@ export const TaxTable = ({
   }[color];
 
   return (
-    <div className="flex-1 overflow-hidden p-6 flex flex-col min-h-0">
+    <div className="flex-1 overflow-hidden p-2 flex flex-col min-h-0">
       <div
         className={`flex-1 overflow-auto border rounded-xl shadow-sm bg-white dark:bg-slate-800 ${theme.border}`}
       >
